@@ -1,0 +1,394 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+QR FINAL PROJECT DATA ANALYSIS
+
+Frequency Table:
+
+
+
+
+
+Descriptive Statistics:
+```{r}
+NHANES2017_2018%>%
+  summarize(mean(Total_Calcium), sd(Total_Calcium), count=n())
+
+NHANES2017_2018%>%
+  summarize(mean(Total_Mineral_Bone_Density), sd(Total_Mineral_Bone_Density), count=n())
+
+NHANES2017_2018%>%
+  summarize(mean(Diet_Calcium), sd(Diet_Calcium), count=n())
+
+```
+
+Descriptive Statistics: Grouped by Race
+```{r}
+NHANES2017_2018%>%
+  group_by(Race)%>%
+  summarize(mean(Total_Calcium), sd(Total_Calcium), count=n())
+
+NHANES2017_2018%>%
+  group_by(Race)%>%
+  summarize(mean(Total_Mineral_Bone_Density), sd(Total_Mineral_Bone_Density), count=n())
+
+NHANES2017_2018%>%
+  group_by(Race)%>%
+  summarize(mean(Diet_Calcium), sd(Diet_Calcium), count=n())
+```
+
+Descriptive Statistics: Grouped by Gender
+```{r}
+NHANES2017_2018%>%
+  group_by(Gender)%>%
+  summarize(mean(Total_Calcium), sd(Total_Calcium), count=n())
+
+NHANES2017_2018%>%
+  group_by(Gender)%>%
+  summarize(mean(Total_Mineral_Bone_Density), sd(Total_Mineral_Bone_Density), count=n())
+
+NHANES2017_2018%>%
+  group_by(Gender)%>%
+  summarize(mean(Diet_Calcium), sd(Diet_Calcium), count=n())
+```
+
+Descriptive Statistics: Grouped by HHEducation
+```{r}
+NHANES2017_2018%>%
+  group_by(HHEducation)%>%
+  summarize(mean(Total_Calcium), sd(Total_Calcium), count=n())
+
+NHANES2017_2018%>%
+  group_by(HHEducation)%>%
+  summarize(mean(Total_Mineral_Bone_Density), sd(Total_Mineral_Bone_Density), count=n())
+
+NHANES2017_2018%>%
+  group_by(HHEducation)%>%
+  summarize(mean(Diet_Calcium), sd(Diet_Calcium), count=n())
+```
+
+Descriptive Statistics: Grouped by HHIncome
+```{r}
+NHANES2017_2018%>%
+  group_by(HHIncome)%>%
+  summarize(mean(Total_Calcium), sd(Total_Calcium), count=n())
+
+NHANES2017_2018%>%
+  group_by(HHIncome)%>%
+  summarize(mean(Total_Mineral_Bone_Density), sd(Total_Mineral_Bone_Density), count=n())
+
+NHANES2017_2018%>%
+  group_by(HHIncome)%>%
+  summarize(mean(Diet_Calcium), sd(Diet_Calcium), count=n())
+```
+
+
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+#install.packages("dunn.test")
+library(dunn.test)
+```
+
+
+
+
+
+
+
+
+T-test: Total_Calcium by Gender
+```{r}
+#1. histogram of continuous variable:
+#hist(data$contvar)
+hist(NHANES2017_2018$Total_Calcium)
+
+
+#3. F-test to see if the variance in the continuous variable is the same for the different levels of the categorical variable:
+var.test(Total_Calcium~Gender, data=NHANES2017_2018, alternative="two.sided")
+
+#4. Run the T-test: t.test(Contvar~Catvar, var.equal=FALSE, data=dataset)
+t.test(Total_Calcium~Gender, var.equal=FALSE, data=NHANES2017_2018)
+```
+Total calcium varies significantly by gender.
+
+
+
+
+
+Convert HHEducation to factor variable:
+```{r}
+NHANES2017_2018$HHEducation<- factor(NHANES2017_2018$HHEducation)
+```
+
+Kruskal-Wallis Test: Total_Calcium by HHeducation
+Alt. Hypothesis: Calcium will vary significantly by HHEducation.
+Null Hypothesis: Calcium will not very significantly by HHeducation.
+
+```{r}
+#1. Generate summary statistics of daily caloric intake by BMI cateogories?
+NHANES2017_2018%>%
+  group_by(HHEducation)%>%
+  summarize(mean(Total_Calcium), sd(Total_Calcium), count=n())
+
+#Boxplot
+ggplot(NHANES2017_2018, aes(x=HHEducation, y= Total_Calcium)) + 
+  geom_boxplot(fill="pink") + 
+  labs(x="HHEducation", 
+       y="Total Calcium Levels",
+       title="Total Calcium by HHEducation")
+
+
+#3. Run the Kruskal-Wallis test and the post-hoc Dunn test to see if there are any significant differences in daily caloric intake by BMI categories. The code for the Kruskal-Wallis and Dunn test is: 
+#dunn.test(x=data$contvar, g=data$catvar, kw=TRUE)
+dunn.test(x=NHANES2017_2018$Total_Calcium, g=NHANES2017_2018$HHEducation, kw=TRUE)
+```
+The overall variation between total calcium and HHEducation is not significant, refuting the alt. hypothesis. The difference between Total calcium levels are significantly different in individuals with college degree and above and individuals with less than a high school diploma, supporting the alternative hypothesis. Total calcium levels are significantly different in individuals with college degree and above and individuals with a high school diploma/GED/ some college, supporting the alternative hypothesis.The difference in total calcium between individuals with a high school diploma and people with less than a high school degree does is not significant, refuting the alternative hypothesis.
+
+
+
+Kruskal-Wallis Test: Total_Calcium by Race
+Alt. Hypothesis: Total calcium will vary significantly by race.
+Null Hypothesis: Total calcium will not vary significantly by race.
+```{r}
+#1. Generate summary statistics of daily caloric intake by BMI cateogories?
+NHANES2017_2018%>%
+  group_by(Race)%>%
+  summarize(mean(Total_Calcium), sd(Total_Calcium), count=n())
+
+#Boxplot
+ggplot(NHANES2017_2018, aes(x=Race, y= Total_Calcium)) + 
+  geom_boxplot(fill="Red") + 
+  labs(x="Race", 
+       y="Total Calcium Levels",
+       title="Total Calcium by Race")
+
+
+#3. Run the Kruskal-Wallis test and the post-hoc Dunn test to see if there are any significant differences in daily caloric intake by BMI categories. The code for the Kruskal-Wallis and Dunn test is: 
+#dunn.test(x=data$contvar, g=data$catvar, kw=TRUE)
+dunn.test(x=NHANES2017_2018$Total_Calcium, g=NHANES2017_2018$Race, kw=TRUE)
+```
+The overall variation between total calcium and race is significant. The difference between total calcium levels are significantly different in individuals that identify as Mexican American and Non-Hispanic white. The difference between total calcium levels  are significantly different in individuals that identify as Non-Hispanic white and other Hispanic. These categories support the alt. hypothesis. All other categories refute the alt. hypothesis.
+
+
+
+Convert HHIncome to factor variable:
+```{r}
+NHANES2017_2018$HHIncome<- factor(NHANES2017_2018$HHIncome)
+```
+Kruskal-Wallis Test: Total Calcium by HHIncome
+Alt: Total calcium will vary significantly by household income.
+Null: Total calcium will not vary significantly by household income.
+```{r}
+#1. Generate summary statistics of daily caloric intake by BMI cateogories?
+NHANES2017_2018%>%
+  group_by(HHIncome)%>%
+  summarize(mean(Total_Calcium), sd(Total_Calcium), count=n())
+
+#Boxplot 
+ggplot(NHANES2017_2018, aes(x=HHIncome, y= Total_Calcium)) + 
+  geom_boxplot(fill="maroon") + 
+  labs(x="HHIncome", 
+       y="Total Calcium Levels",
+       title="Total Calcium by HHIncome")
+
+
+#3. Run the Kruskal-Wallis test and the post-hoc Dunn test to see if there are any significant differences in daily caloric intake by BMI categories. The code for the Kruskal-Wallis and Dunn test is: 
+#dunn.test(x=data$contvar, g=data$catvar, kw=TRUE)
+dunn.test(x=NHANES2017_2018$Total_Calcium, g=NHANES2017_2018$HHIncome, kw=TRUE)
+```
+The overall variation between total calcium and household income is not significant, refuting the alt. hypothesis. The variation between individuals with an income of:
+1 and 10 - 0.02
+1 and 13 - 0.03
+1 and 15 - 0.02
+1 and 2 - 0.03
+1 and 3 - 0.02
+1 and 5 - 0.01
+1 and 7 - 0.03
+14 and 5 - 0.04
+5 and 6 - 0.048
+supporting the alternative hypothesis. All other variation among income levels are insignificant.
+
+
+Pearson Correlation Test & Scatter plot (total calium by bone density):
+Alt: There will be a negative correlation between calcium and bone density.
+null:There will be no correlation between calcium and bone densiy.
+```{r}
+#scatter plot code: #ggplot(aes(x=DepVar, y=IndVar), data=) + geom_point(color="") + geom_smooth(method=lm, color="") + labs(x="", y="") + theme_bw()
+
+NHANES2017_2018%>% ggplot(.,aes(x=Total_Calcium, y=Total_Mineral_Bone_Density)) + geom_point(color="darkgreen") + geom_smooth(method=lm, color="navyblue") + labs(x="Total Calcium Levels", y="Total Mineral Bone Density", title="Total Calcium and Mineral Bone Density") + theme_bw()
+
+#correlation test code: cor.test(data$DepVar, data$IndVar, method="pearson")
+
+cor.test(NHANES2017_2018$Total_Calcium, NHANES2017_2018$Total_Mineral_Bone_Density, method="pearson")
+```
+The correlation coefficient is -0.152. The correlation is significant with a p-value of 6.248e-10. These statistics support the alternative hypothesis with a significant negative correlation.
+
+
+
+
+Correlation (total calcium by dietary calcium intake)
+Alt: There will be a positive correlation between total calcium and calcium intake.
+Null: There will be no correlation between total calcium and calcium intake.
+```{r}
+#scatter plot code: #ggplot(aes(x=DepVar, y=IndVar), data=) + geom_point(color="") + geom_smooth(method=lm, color="") + labs(x="", y="") + theme_bw()
+
+NHANES2017_2018%>% ggplot(.,aes(x=Total_Calcium, y=Diet_Calcium)) + geom_point(color="black") + geom_smooth(method=lm, color="red") + labs(x="Total Calcium Levels", y="Calcium Intake in a Day", title="Total Calcium and Dietary calcium Intake") + theme_bw()
+
+#correlation test code: cor.test(data$DepVar, data$IndVar, method="pearson")
+
+cor.test(NHANES2017_2018$Total_Calcium, NHANES2017_2018$Diet_Calcium, method="pearson")
+```
+The Pearson correlation coefficient is 0.06. The correlation is significant with a p-value of 0.01. The statistics support the alt hypothesis with a slightly positive significant correlation between total calcium and dietary calcium intake.
+
+
+Chi-squared Test & prop tables:
+
+```{r}
+#a. generate a frequency table by raw counts and percentages
+TtlCalcCat_TMBDCat_table <- xtabs(~TtlCalcCat + TMBDCat, data=NHANES2017_2018)
+TtlCalcCat_TMBDCat_table
+prop.table(TtlCalcCat_TMBDCat_table)*100
+#b. run the Chi-square test on that table.
+chisq.test(TtlCalcCat_TMBDCat_table)
+```
+27.8% of individuals that have normal calcium levels have healthy bone mineral density. 71.6% of individuals that have normal calcium levels have Osteopenia. 
+
+```{r}
+#a. generate a frequency table by raw counts and percentages
+TtlCalcCat_Gender_table <- xtabs(~TtlCalcCat + Gender, data=NHANES2017_2018)
+TtlCalcCat_Gender_table
+prop.table(TtlCalcCat_Gender_table)*100
+#b. run the Chi-square test on that table.
+chisq.test(TtlCalcCat_Gender_table)
+```
+
+```{r}
+#a. generate a frequency table by raw counts and percentages
+TtlCalcCat_Race_table <- xtabs(~TtlCalcCat + Race, data=NHANES2017_2018)
+TtlCalcCat_Race_table
+prop.table(TtlCalcCat_Race_table)*100
+#b. run the Chi-square test on that table.
+chisq.test(TtlCalcCat_Race_table)
+```
+
+Linear Regression Models:
+Total Calcium by Total Mineral Bone Density
+```{r}
+Total_Calcium_Total_Mineral_Bone_Density_fit <- lm(Total_Calcium~Total_Mineral_Bone_Density, data=NHANES2017_2018)
+summary(Total_Calcium_Total_Mineral_Bone_Density_fit)
+```
+Total Calcium = 9.81 + Total Mineral Bone Density(-0.41)
+Multiple R-squared value = 0.023
+p-value = 6.248e-10
+There is a poor correlation between total calcium levels and total mineral bone density and the p-value is 6.248e-10 so it is significant. Therefore, you could not predict and individual's total calcium based on their total mineral bone density.
+
+
+Total Calcium by Dietary Calcium
+```{r}
+Total_Calcium_Diet_Calcium_fit <- lm(Total_Calcium~Diet_Calcium, data=NHANES2017_2018)
+summary(Total_Calcium_Diet_Calcium_fit)
+```
+Total calcium = 9.317 + Dietary Calcium(3.411e-05)
+Multiple R-squared value = .0036
+p-value = .015
+There is a very poor correlation between total calcium and dietary calcium intake and the p-value is .015 so the relationship is significant. Therefore, you could not predict an individuals total calcium levels based on their dietary calcium intake.
+
+
+Odds Ratio:
+Ttl Calc HN variable:
+```{r}
+NHANES2017_2018$TtlCalcHN[NHANES2017_2018$Total_Calcium>=8.5 & NHANES2017_2018$Total_Calcium<=10.5] <- "Healthy"
+NHANES2017_2018$TtlCalcHN[NHANES2017_2018$Total_Calcium<=8.4 | NHANES2017_2018$Total_Calcium>=10.6] <- "Not Healthy"
+factor(c(NHANES2017_2018$TtlCalcHN, levels=c("Healthy", "Not Healthy")))
+head(NHANES2017_2018)
+```
+
+
+
+TtlCalc by Race:
+```{r}
+TtlCalcHN_Race_odds_table <- table(NHANES2017_2018$Race, NHANES2017_2018$TtlCalcHN)
+TtlCalcHN_Race_odds_table[TtlCalcHN_Race_odds_table ==0] <-1
+oddsratio(TtlCalcHN_Race_odds_table)
+
+ggplot(NHANES2017_2018) + geom_mosaic(aes(x=product(Race), fill=TtlCalcHN), na.rm=TRUE, show.legend = FALSE) + labs(title="Odds Ratio TtlCalcHN by Race", x="Race", y="TtlCalcHN")
+```
+The odds ratio of having healthy calcium levels for Other Hispanic individuals compared to Mexican American is 1.93. The odds ratio of having healthy calcium levels for Non Hispanic White individuals compared to Mexican American is 1.77. The odds ratio of having healthy calcium levels for Non Hispanic Black individuals compared to Mexican American is 3.77. The odds ratio of having healthy calcium levels for Non Hispanic Asian individuals compared to Mexican American is 1.20. The odds ratio of having healthy calcium levels for Multiracial individuals compared to Mexican American is 2.05. Based on the p-values none of these comparisons are significant.
+
+
+
+TtlCalc by Gender:
+```{r}
+TtlCalcHN_Gender_odds_table <- table(NHANES2017_2018$Gender, NHANES2017_2018$TtlCalcHN)
+
+oddsratio(TtlCalcHN_Gender_odds_table)
+
+ggplot(NHANES2017_2018) + geom_mosaic(aes(x=product(Gender), fill=TtlCalcHN), na.rm=TRUE, show.legend = FALSE) + labs(title="Odds Ratio TtlCalcHN by Gender", x="Gender", y="TtlCalcHN")
+```
+The odds ratio for total calcium for men compared to women is 2.97. The p-value is 0.09 so the comparison is not significant. 
+
+
+
+TMBD HN variable:
+```{r}
+NHANES2017_2018$TMBDHN[NHANES2017_2018$Total_Mineral_Bone_Density>=0 & NHANES2017_2018$Total_Mineral_Bone_Density<=1] <- "Healthy"
+NHANES2017_2018$TMBDHN[NHANES2017_2018$Total_Mineral_Bone_Density>=1.1] <- "Not Healthy"
+factor(c(NHANES2017_2018$TMBDHN, levels=c("Healthy", "Not Healthy")))
+head(NHANES2017_2018)
+```
+
+
+TtlCalcHN by HHEducation:
+```{r}
+TtlCalcHN_HHE_odds_table <- table(NHANES2017_2018$HHEducation, NHANES2017_2018$TtlCalcHN)
+#TtlCalcHN_HHE_odds_table[TtlCalcHN_HHE_odds_table ==0] <-1
+oddsratio(TtlCalcHN_HHE_odds_table)
+
+ggplot(NHANES2017_2018) + geom_mosaic(aes(x=product(HHEducation), fill=TtlCalcHN), na.rm=TRUE, show.legend = FALSE) + labs(title="Odds Ratio TtlCalcHN by HHEducation", x="HHEducation", y="TtlCalcHN")
+```
+The odds ratio of having healthy calcium levels for people with a high school diploma compared to those without a high school diploma is 0.43. The odds ratio of having healthy calcium levels for college graduates compared to individuals without a high school diploma is 0.19. Based on the p-values none of these comparisons are significant.
+
+
+TtlCalcHN by HHIncome:
+```{r}
+TtlCalcHN_HHI_odds_table <- table(NHANES2017_2018$HHIncome, NHANES2017_2018$TtlCalcHN)
+TtlCalcHN_HHI_odds_table[TtlCalcHN_HHI_odds_table ==0] <-1
+oddsratio(TtlCalcHN_HHI_odds_table)
+
+ggplot(NHANES2017_2018) + geom_mosaic(aes(x=product(HHIncome), fill=TtlCalcHN), na.rm=TRUE, show.legend = FALSE) + labs(title="Odds Ratio TtlCalcHN by HHIncome", x="HHIncome", y="TtlCalcHN")
+```
+The odds ratio of having healthy calcium levels for individuals that make $5000 to $9999 compared to those who make $0 to $4999 is 0.82. The odds ratio of having healthy calcium levels for individuals that make $10000 to $14999 compared to those who make $0 to $4999 is 0.48. The odds ratio of having healthy calcium levels for individuals that make $15000 to $19999 compared to those who make $0 to $4999 is 0.37. The odds ratio of having healthy calcium levels for individuals that make $20000 to $24999 compared to those who make $0 to $4999 is 0.75. The odds ratio of having healthy calcium levels for individuals that make $25000 to $34999 compared to those who make $0 to $4999 is 0.18. The odds ratio of having healthy calcium levels for individuals that make $35000 to $44999 compared to those who make $0 to $4999 is 0.17. The odds ratio of having healthy calcium levels for individuals that make $45000 to $54999 compared to those who make $0 to $4999 is 0.29. The odds ratio of having healthy calcium levels for individuals that make $55000 to $64999 compared to those who make $0 to $4999 is 0.29. The odds ratio of having healthy calcium levels for individuals that make $65000 to $74999 compared to those who make $0 to $4999 is 0.82. The odds ratio of having healthy calcium levels for individuals that make $20000 and over compared to those who make $0 to $4999 is 0.53. The odds ratio of having healthy calcium levels for individuals that make under $20000 compared to those who make $0 to $4999 is 1.27. The odds ratio of having healthy calcium levels for individuals that make $75000 to $99999 compared to those who make $0 to $4999 is 0.16. The odds ratio of having healthy calcium levels for individuals that make $100000 and over compared to those who make $0 to $4999 is 0.09. Based on the p-values none of these comparisons are significant.
+
+
+
+TMBD by Race:
+```{r}
+TMBDHN_Race_odds_table <- table(NHANES2017_2018$Race, NHANES2017_2018$TMBDHN)
+#TMBDHN_Race_odds_table[TMBDHN_Race_odds_table ==0] <-1
+oddsratio(TMBDHN_Race_odds_table)
+
+ggplot(NHANES2017_2018) + geom_mosaic(aes(x=product(Race), fill=TMBDHN), na.rm=TRUE, show.legend = FALSE) + labs(title="Odds Ratio TMBDHN by Race", x="Race", y="TMBDHN")
+```
+The odds ratio of having healthy mineral bone density for Other Hispanic individuals compared to Mexican American is 1.14. The odds ratio of having healthy mineral bone density for Non Hispanic White individuals compared to Mexican American is 1.02. The odds ratio of having healthy mineral bone density for Non Hispanic Black individuals compared to Mexican American is 2.35. The odds ratio of having healthy mineral bone density for Non Hispanic Asian individuals compared to Mexican American is 0.60. The odds ratio of having healthy mineral bone density for Multiracial individuals compared to Mexican American is 1.09. Based on the p-values none of these comparisons are significant. The p-value for Non Hispanic Black compared to Mexican American is 1.86e-05, making the comparison significant. The p-value for Non Hispanic Asian is 7.94e-03, making the comparison significant.
+
+
+
+
+TMBD by Gender:
+```{r}
+TMBDHN_Gender_odds_table <- table(NHANES2017_2018$Gender, NHANES2017_2018$TMBDHN)
+#TMBDHN_Gender_odds_table[TMBDHN_Gender_odds_table ==0] <-1
+oddsratio(TMBDHN_Gender_odds_table)
+
+ggplot(NHANES2017_2018) + geom_mosaic(aes(x=product(Gender), fill=TMBDHN), na.rm=TRUE, show.legend = FALSE) + labs(title="Odds Ratio TMBDHN by Gender", x="Gender", y="TMBDHN")
+```
+The odds ration of having healthy mineral bone density for women compared to men is 0.37. The p-value is 8.16e-19 making the comaprison significant.
+
+
+
+
